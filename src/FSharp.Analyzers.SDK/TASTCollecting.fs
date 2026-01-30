@@ -46,6 +46,14 @@ module TASTCollecting =
 
         default _.WalkFastIntegerForLoop _ _ _ _ = ()
 
+        abstract WalkMemberOrFunctionOrValue:
+            value: FSharpMemberOrFunctionOrValue ->
+            curriedArgs: FSharpMemberOrFunctionOrValue list list ->
+            body: FSharpExpr ->
+                unit
+
+        default _.WalkMemberOrFunctionOrValue _ _ _ = ()
+
         abstract WalkILAsm:
             asmCode: string -> typeArgs: FSharpType list -> argExprs: FSharpExpr list -> unit
 
@@ -452,7 +460,7 @@ module TASTCollecting =
         | FSharpImplementationFileDeclaration.Entity(_e, subDecls) ->
             for subDecl in subDecls do
                 visitDeclaration f subDecl
-        | FSharpImplementationFileDeclaration.MemberOrFunctionOrValue(v, _vs, e) ->
+        | FSharpImplementationFileDeclaration.MemberOrFunctionOrValue(v, vs, e) ->
             // work around exception from
             // https://github.com/dotnet/fsharp/blob/91ff67b5f698f1929f75e65918e998a2df1c1858/src/Compiler/Symbols/Exprs.fs#L1269
             if
@@ -461,6 +469,8 @@ module TASTCollecting =
                 || not e.Type.IsAbbreviation
                 || not (Set.contains e.Type.BasicQualifiedName exprTypesToIgnore)
             then
+                f.WalkMemberOrFunctionOrValue v vs e
+
                 // work around exception from
                 // https://github.com/dotnet/fsharp/blob/91ff67b5f698f1929f75e65918e998a2df1c1858/src/Compiler/Symbols/Exprs.fs#L1329
                 try
