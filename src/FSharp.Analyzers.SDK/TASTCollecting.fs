@@ -454,7 +454,7 @@ module TASTCollecting =
                 "Microsoft.FSharp.Core.bool"
             ]
 
-    let rec visitDeclaration f d =
+    let rec visitDeclaration (f: TypedTreeCollectorBase) d =
 
         match d with
         | FSharpImplementationFileDeclaration.Entity(_e, subDecls) ->
