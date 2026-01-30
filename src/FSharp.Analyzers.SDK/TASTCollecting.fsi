@@ -50,6 +50,20 @@ module TASTCollecting =
         abstract WalkCoerce: targetType: FSharpType -> inpExpr: FSharpExpr -> unit
         default WalkCoerce: targetType: FSharpType -> inpExpr: FSharpExpr -> unit
 
+        /// Overwriting this member hooks up a custom operation for a declaration of a member, function or value.
+        /// Note that this only hooks up top-level declarations and not e.g. let expressions inside a function.
+        abstract WalkMemberOrFunctionOrValue:
+            value: FSharpMemberOrFunctionOrValue ->
+            curriedArgs: FSharpMemberOrFunctionOrValue list list ->
+            body: FSharpExpr ->
+                unit
+
+        default WalkMemberOrFunctionOrValue:
+            value: FSharpMemberOrFunctionOrValue ->
+            curriedArgs: FSharpMemberOrFunctionOrValue list list ->
+            body: FSharpExpr ->
+                unit
+
         /// Overwriting this member hooks up a custom operation for fast integer loops.
         abstract WalkFastIntegerForLoop:
             startExpr: FSharpExpr ->
@@ -108,6 +122,7 @@ module TASTCollecting =
         default WalkLambda: lambdaVar: FSharpMemberOrFunctionOrValue -> bodyExpr: FSharpExpr -> unit
 
         /// Overwriting this member hooks up a custom operation for let expressions.
+        /// Note that this only hooks up let expressions, not top-level declarations.
         abstract WalkLet:
             bindingVar: FSharpMemberOrFunctionOrValue ->
             bindingExpr: FSharpExpr ->
@@ -121,6 +136,7 @@ module TASTCollecting =
                 unit
 
         /// Overwriting this member hooks up a custom operation for let-rec expressions.
+        /// Note that this only hooks up let-rec expressions, not top-level declarations.
         abstract WalkLetRec:
             recursiveBindings: (FSharpMemberOrFunctionOrValue * FSharpExpr) list ->
             bodyExpr: FSharpExpr ->
